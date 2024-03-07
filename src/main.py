@@ -1,3 +1,4 @@
+import psycopg2 as pg
 from classes.crud import CRUD
 
 def menu():

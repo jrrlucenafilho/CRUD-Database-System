@@ -3,7 +3,7 @@ from classes.produto import Produto
 class CRUD:
     @staticmethod
     def criar_produto():
-        Produto.criar_produto()
+        Produto.criar_produto() #TODO: Checar se faz static msm
 
     @staticmethod
     def listar_produtos():

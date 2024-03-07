@@ -1,16 +1,16 @@
 from classes.franquia import Franquia
 
 class Produto(Franquia):
-    __codigo_produto = 0
+    __cod_produto = 0
     __produtos_cadastrados = []
 
     def __init__(self, nome, valor, estoque):
-        super().__init__(self.__formatar_codigo(Produto.__codigo_produto))
+        super().__init__(self.__formatar_codigo(Produto.__cod_produto))
         
         self.__nome = nome
         self.__valor = valor
         self.__estoque = estoque
-        Produto.__codigo_produto += 1
+        Produto.__cod_produto += 1
         Produto.__produtos_cadastrados.append(self)
 
     @staticmethod
