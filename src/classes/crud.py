@@ -1,4 +1,4 @@
-from produto import Produto
+from classes.produto import Produto
 
 class CRUD:
     @staticmethod

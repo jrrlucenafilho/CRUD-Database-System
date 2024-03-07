@@ -1,4 +1,4 @@
-from franquia import Franquia
+from classes.franquia import Franquia
 
 class Produto(Franquia):
     __codigo_produto = 0

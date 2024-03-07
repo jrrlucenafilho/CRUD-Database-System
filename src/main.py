@@ -1,4 +1,4 @@
-from crud import CRUD
+from classes.crud import CRUD
 
 def menu():
     print("\n===== Menu =====")
