@@ -1,3 +1,7 @@
 #Ignored folders
 /postgresql
 __pycache__
+.vscode
+unit_tests
+pgAdmin 4.lnk
+PostgreSQL 16.lnk
