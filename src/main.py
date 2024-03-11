@@ -1,5 +1,4 @@
-import psycopg2 as pg
-from classes.crud import CRUD
+from classes.CRUD import CRUD
 
 def menu():
     print("\n===== Menu =====")
@@ -12,22 +11,27 @@ def menu():
     print("7. Sair")
 
 def main():
+    crud_manager = CRUD()
+
+    if crud_manager.tabela_existe('produtos') is False:
+        crud_manager.criar_tabela('produtos', 4, [("nome", "str"), ("valor", "float"), ("estoque", "int")])
+
     while True:
         menu()
         opcao = input("Digite a opção desejada: ")
         if opcao == "1":
-            CRUD.criar_produto()
+            crud_manager.criar_produto()
         elif opcao == "2":
-            CRUD.listar_produtos()
+            crud_manager.listar_produtos()
         elif opcao == "3":
             nome = input("Digite o nome do produto que deseja buscar: ")
-            CRUD.buscar_por_nome(nome)
+            crud_manager.buscar_por_nome(nome)
         elif opcao == "4":
-            CRUD.atualizar_produto()
+            crud_manager.atualizar_produto()
         elif opcao == "5":
-            CRUD.deletar_produto()
+            crud_manager.deletar_produto()
         elif opcao == "6":
-            CRUD.gerar_relatorio_estoque()
+            crud_manager.gerar_relatorio_estoque()
         elif opcao == "7":
             print("Saindo...")
             break
