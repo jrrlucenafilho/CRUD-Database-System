@@ -170,8 +170,7 @@ class DB_Manager:
 
         # Check if product exists
         if not self.product_exists_by_name(nome):
-            print("Produto pesquisado não encontrado")
-            return
+            return False
 
         # Search product query
         query = f"SELECT * FROM produtos WHERE nome = '{nome}'"
@@ -179,8 +178,7 @@ class DB_Manager:
         self.db_cursor.execute(query)
         rows = self.db_cursor.fetchall()
 
-        for row in rows:
-            print(row)
+        return rows[0]
 
     '''Editing rows funcs'''
     # edit_choice should be one of the following: "cod_produto", "nome", "valor", "estoque"
@@ -194,14 +192,12 @@ class DB_Manager:
 
         # Check if it exists first
         if self.product_exists_by_name(nome) is False:
-            print("Produto a editar não encontrado")
             return False
 
         # Edit attribute based on edit_choice
         if edit_choice == "cod_produto":
             # Check if new code already exists
             if self.product_exists_by_code(new_attribute):
-                print("Já existe um produto com esse codigo")
                 return False
 
             self.edit_product_code_by_name(nome, new_attribute)
@@ -210,7 +206,6 @@ class DB_Manager:
         if edit_choice == "nome":
             # Check if new name already exists in db
             if self.product_exists_by_name(new_attribute):
-                print("Já existe um produto com esse nome")
                 return False
 
             self.edit_product_name_by_name(nome, new_attribute)

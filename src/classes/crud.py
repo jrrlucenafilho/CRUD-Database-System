@@ -6,6 +6,16 @@ class CRUD:
     def __init__(self):
         self.db_manager = DB_Manager()
 
+    def menu(self):
+        print("\n===== Menu =====")
+        print("1. Cadastrar Produto")
+        print("2. Listar Produtos")
+        print("3. Buscar Produto por Nome")
+        print("4. Atualizar Produto")
+        print("5. Deletar Produto")
+        print("6. Gerar Relatório de Estoque")
+        print("7. Sair")
+
 
     def criar_tabela(self, nome:str, colunas:int, info_colunas:list[tuple[str, str]]):
         self.db_manager.add_table(nome, colunas, info_colunas)
@@ -25,9 +35,10 @@ class CRUD:
             print("Produto já cadastrado.")
             opcao_edit = input("Deseja atualizar o produto existente? (s/n): ")
             if opcao_edit.lower() == 's':
-                self.atualizar_produto(nome, valor, estoque)
-                return
-            return False
+                self.db_manager.edit_product_by_name(nome, 'valor', valor)  # Updates based on input
+                self.db_manager.edit_product_by_name(nome, 'estoque', estoque)
+                print("Produto atualizado com sucesso!")
+            return
         else:
             self.db_manager.insert_product(nome, valor, estoque)
             print("Produto cadastrado com sucesso!")
@@ -44,10 +55,10 @@ class CRUD:
         # Now print the rows (tkinter later)
         print("Código | Nome | Valor | Estoque")
         for row in rows_list:
-            print(f"{row[0]} | {row[1]} | R${row[2]:.2f} | {row[3]}")
+            print(f"{row[0]} | {row[1]} | R$ {row[2]:.2f} | {row[3]}")
 
 
-    def atualizar_produto(self, name, new_value):
+    def atualizar_produto(self):
         searched_name = input("Digite o nome do produto que deseja atualizar: ")
 
         # Check if product exists first
@@ -84,7 +95,7 @@ class CRUD:
 
 
 
-    def deletar_produto(self, to_be_deleted_prod_name):
+    def deletar_produto(self):
         to_be_deleted_prod_name = input("Digite o nome do produto que deseja excluir: ")
 
         # Check if product exists first
@@ -97,16 +108,19 @@ class CRUD:
 
 
 
-    def buscar_por_nome(self, searched_name):
+    def buscar_por_nome(self):
+        searched_name = input("Digite o nome do produto que deseja buscar: ")
+
         # Exists check
-        if self.db_manager.product_exists_by_name(searched_name) is False:
+        row = self.db_manager.search_product_by_name(searched_name)
+
+        # Search and print
+        if row is False:
             print("Produto pesquisado não encontrado.")
             return False
 
-        # Search and print
-        row = self.db_manager.search_product_by_name(searched_name)
         print(f"Código | Nome | Valor | Estoque")
-        print(f"{row[0]} | {row[1]} | R${row[2]:.2f} | {row[3]}")
+        print(f"{row[0]} | {row[1]} | R$ {row[2]:.2f} | {row[3]}")
 
 
     def gerar_relatorio_estoque(self):
