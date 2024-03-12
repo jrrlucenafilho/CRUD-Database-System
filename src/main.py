@@ -1,5 +1,11 @@
 from classes.CRUD import CRUD
 
+'''
+Programa assume "user=postgres password=postgres" como credenciais do banco de dados
+E 'loja_de_revendas_jequiti' como nome do BD
+    
+'''
+
 def main():
     crud_manager = CRUD()
 
