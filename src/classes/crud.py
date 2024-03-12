@@ -24,6 +24,9 @@ class CRUD:
     def tabela_existe(self, nome :str):
         return self.db_manager.table_exists(nome)
 
+    def database_existe(self, nome :str):
+        return self.db_manager.database_exists(nome)
+
 
     def criar_produto(self):
         nome = input("Digite o nome do produto: ")
