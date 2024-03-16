@@ -9,7 +9,7 @@ class CRUD:
         #GUI Stuff
         self.root = tk.Tk()
         self.root.title("Loja de Revendas Jequiti")
-        self.root.geometry("1280x400")
+        self.root.geometry("1130x550")
         self.tree = ttk.Treeview(self.root)
 
         self.title_label = tk.Label(self.root, text="Loja de Revendas Jequiti", font=("Arial", 20))
@@ -42,7 +42,7 @@ class CRUD:
                                        width=7, padx=5, pady=5, bd=3,
                                        bg="#0099ff",
                                        command=lambda: self.insert_data_UI())
-        self.create_button.grid(row=5, column=1, columnspan=1, sticky='ew')
+        self.create_button.grid(row=5, column=1, columnspan=1, pady=10, padx=5, sticky='ew')
 
         self.delete_button = tk.Button(self.root, 
                                        text="Deletar",
@@ -50,14 +50,14 @@ class CRUD:
                                        width=7, padx=10, pady=5, bd=3,
                                        bg="#0099ff",
                                        command=lambda: self.delete_data_UI())
-        self.delete_button.grid(row=5, column=2, columnspan=1, padx=10, pady=5, sticky='ew')
+        self.delete_button.grid(row=5, column=2, columnspan=1, pady=10, padx=5, sticky='ew')
 
         self.update_button = tk.Button(self.root,
                                        text="Atualizar",
                                        font=("Arial", 15),
                                        width=7, padx=10, pady=5, bd=3,
                                        bg="#0099ff")
-        self.update_button.grid(row=5, column=3, columnspan=1, padx=10, pady=5, sticky='ew')
+        self.update_button.grid(row=5, column=3, columnspan=1, pady=10, padx=5, sticky='ew')
 
         self.list_button = tk.Button(self.root,
                                         text="Listar",
@@ -65,7 +65,7 @@ class CRUD:
                                         width=7, padx=10, pady=5, bd=3,
                                         bg="#0099ff",
                                         command=lambda: self.update_treeview())
-        self.list_button.grid(row=5, column=4, columnspan=1, padx=10, pady=5, sticky='ew')
+        self.list_button.grid(row=5, column=4, columnspan=1, pady=10, padx=5, sticky='ew')
 
         self.list_one_product_button = tk.Button(self.root,
                                                 text="Buscar",
@@ -73,7 +73,7 @@ class CRUD:
                                                 width=7, padx=10, pady=5, bd=3,
                                                 bg="#0099ff",
                                                 command=lambda: self.buscar_por_nome()) #TODO: Change this into a new TopLevel window
-        self.list_one_product_button.grid(row=5, column=5, columnspan=1, padx=10, pady=5, sticky='ew')
+        self.list_one_product_button.grid(row=5, column=5, columnspan=1, pady=10, padx=5, sticky='ew')
 
         #Treeview widget
         self.style = ttk.Style()
@@ -95,7 +95,7 @@ class CRUD:
 
         #Config actual grid
         self.tree.tag_configure("orow", background="white", font=("Arial bold", 15))
-        self.tree.grid(row=1, column=5, columnspan=4, rowspan=5, padx=10, pady=10)
+        self.tree.grid(row=6, column=1, columnspan=4, rowspan=5, padx=10, pady=10)
 
 
     '''def menu(self):
