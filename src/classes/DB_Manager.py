@@ -1,7 +1,6 @@
 import psycopg2 as pg
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from classes.Table import Table
-import tkinter as tk
+from Table import Table
 
 class DB_Manager:
     def __init__(self):
@@ -52,7 +51,7 @@ class DB_Manager:
         self.connection = pg.connect("user=postgres password=postgres dbname=loja_de_revendas_jequiti")
         self.db_cursor = self.connection.cursor()
 
-        # Table obj creation, attributing it to db_tables list for tracking
+        # Table obj creation, attributing it to db_tables list for tracking (only be useful later w/ more tables)
         self.db_tables.append(Table(table_name, columns, cols_info))
 
         # Create table query with proper variable number of collumns in PostgreSQL db
