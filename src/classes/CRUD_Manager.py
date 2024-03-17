@@ -2,7 +2,7 @@ from classes.DB_Manager import DB_Manager
 import tkinter as tk
 from tkinter import ttk
 
-class CRUD:
+class CRUD_Manager:
     def __init__(self):
         self.db_manager = DB_Manager()
         self.search_product_tuple = None

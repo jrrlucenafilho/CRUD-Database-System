@@ -1,4 +1,4 @@
-from classes.CRUD import CRUD
+from classes.CRUD_Manager import CRUD_Manager
 import psycopg2 as pg
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
@@ -91,7 +91,7 @@ def main():
     if table_exists('produtos') is False:
         init_table('produtos', 4, [("nome", "str"), ("valor", "float"), ("estoque", "int")])
 
-    crud_manager = CRUD()
+    crud_manager = CRUD_Manager()
     crud_manager.get_root().mainloop()
 
 if __name__ == "__main__":
