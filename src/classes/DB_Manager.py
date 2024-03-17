@@ -1,6 +1,6 @@
 import psycopg2 as pg
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from Table import Table
+from classes.Table import Table
 
 class DB_Manager:
     def __init__(self):
@@ -292,24 +292,3 @@ class DB_Manager:
         exists = self.db_cursor.fetchone()[0]
 
         return exists
-
-
-# for testing
-if __name__ == "__main__":
-    db_manager = DB_Manager()
-
-    #Testing over here
-    #db_manager.add_table("produtos", 4, 0, [("nome", "str"), ("valor", "float"), ("estoque", "int")])
-    #db_manager.drop_table("produtos")
-
-    #db_manager.insert_product("LeloAir perfume", 9.91, 132)
-    #db_manager.insert_product("LeloAir perfume2", 9.92, 1321)
-    #db_manager.insert_product("LeloAir perfume extra", 9.93, 122)
-    #db_manager.insert_product("LeloAir perfume4", 9.94, 1)
-
-    #db_manager.remove_product_by_name("LeloAir perfume2")
-    #db_manager.list_products()
-    #db_manager.search_product_by_name("LeloAir perfume4")
-    #db_manager.remove_product_by_name("LeloAir perfume extra")
-    #db_manager.edit_product_by_name("LeloAir perfume extra", "valor", 999.99)
-    #db_manager.edit_product_by_name("LeloAir perfume extra PREMIUM", "nome", "LeloAir perfume mega")

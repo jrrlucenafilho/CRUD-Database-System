@@ -1,4 +1,4 @@
-from DB_Manager import DB_Manager
+from classes.DB_Manager import DB_Manager
 import tkinter as tk
 from tkinter import ttk
 
@@ -109,6 +109,9 @@ class CRUD:
         #Initial Listing
         self.update_treeview()
 
+    def get_root(self):
+        return self.root
+
 
     '''Database Handling'''
     def criar_tabela(self, nome:str, colunas:int, info_colunas:list[tuple[str, str]]):
@@ -123,105 +126,7 @@ class CRUD:
         return self.db_manager.database_exists(nome)
 
 
-    def criar_produto(self):
-        nome = input("Digite o nome do produto: ")
-        valor = float(input("Digite o valor do produto: "))
-        estoque = int(input("Digite quantos produtos existem no estoque: "))
-
-        #Check if product already exists (by name)
-        if self.db_manager.product_exists_by_name(nome) is True:
-            print("Produto já cadastrado.")
-            opcao_edit = input("Deseja atualizar o produto existente? (s/n): ")
-            if opcao_edit.lower() == 's':
-                self.db_manager.edit_product_by_name(nome, 'valor', valor)  #Updates based on input
-                self.db_manager.edit_product_by_name(nome, 'estoque', estoque)
-                print("Produto atualizado com sucesso!")
-            return
-        else:
-            self.db_manager.insert_product(nome, valor, estoque)
-            print("Produto cadastrado com sucesso!")
-
-
-    def listar_produtos(self):
-        rows_list = self.db_manager.list_products()
-
-        #First check if table is empty
-        if self.db_manager.is_table_empty('produtos') is True:
-            print("Não há produtos cadastrados.")
-            return False
-
-        #Now print the rows (tkinter later)
-        print("Código | Nome | Valor | Estoque")
-        for row in rows_list:
-            print(f"{row[0]} | {row[1]} | R$ {row[2]:.2f} | {row[3]}")
-
-
-    def atualizar_produto(self):
-        searched_name = input("Digite o nome do produto que deseja atualizar: ")
-
-        #Check if product exists first
-        if self.db_manager.product_exists_by_name(searched_name) is False:
-            print("Produto a atualizar não encontrado.")
-            return False
-
-        #Ask for prompt on what to update
-        print("\n===== Menu =====")
-        print("1. Nome")
-        print("2. Valor")
-        print("3. Estoque")
-        opcao_atualizar = int(input("Digite a opcao desejada: "))
-
-        if opcao_atualizar == 1:
-            novo_nome = input("Digite o novo nome do produto: ")
-
-            #Check if there's already a product with new_name
-            if self.db_manager.product_exists_by_name(novo_nome) is True:
-                print("Já existe um produto com este nome.")
-                return False
-
-            self.db_manager.edit_product_by_name(searched_name, 'nome', novo_nome)
-        elif opcao_atualizar == 2:
-            novo_valor = float(input("Digite o novo valor do produto: "))
-            self.db_manager.edit_product_by_name(searched_name, 'valor', novo_valor)
-        elif opcao_atualizar == 3:
-            novo_estoque = int(input("Digite o novo valor do estoque: "))
-            self.db_manager.edit_product_by_name(searched_name, 'estoque', novo_estoque)
-        else:
-            print("Opção inválida")
-            return False 
-        print("Produto atualizado com sucesso!")
-
-
-
-    def deletar_produto(self):
-        to_be_deleted_prod_name = input("Digite o nome do produto que deseja excluir: ")
-
-        #Check if product exists first
-        if self.db_manager.product_exists_by_name(to_be_deleted_prod_name) is False:
-            print("Produto não encontrado.")
-            return False
-
-        self.db_manager.remove_product_by_name(to_be_deleted_prod_name)
-        print("Produto excluído com sucesso!")
-
-
-
-    def buscar_por_nome(self):
-        searched_name = input("Digite o nome do produto que deseja buscar: ")
-
-        #Exists check
-        row = self.db_manager.search_product_by_name(searched_name)
-
-        #Search and print
-        if row is False:
-            print("Produto pesquisado não encontrado.")
-            return False
-
-        print(f"Código | Nome | Valor | Estoque")
-        print(f"{row[0]} | {row[1]} | R$ {row[2]:.2f} | {row[3]}")
-
-
-    def gerar_relatorio_estoque(self):
+    '''def gerar_relatorio_estoque(self): TODO: Implement this one with tkinter
         #Check if table is empty
         if self.db_manager.is_table_empty('produtos') is True:
             print("Não há produtos cadastrados.")
@@ -233,7 +138,7 @@ class CRUD:
         print("Nome | Estoque")
 
         for row in rows_list:
-            print(f"{row[1]} | {row[3]}")
+            print(f"{row[1]} | {row[3]}")'''
 
 
     '''CRUD UI utility functions'''
@@ -506,15 +411,15 @@ class CRUD:
         #Make buttons for each edit attribute
         name_button = tk.Button(edit_buttons_frame, text="Nome",
                                 padx=10, pady=5, bd=3, bg="#0099ff",
-                                command=lambda: self.update_product_by_name_UI('nome'))
+                                command=lambda: self.update_product_by_name_UI('nome', treeview))
 
         value_button = tk.Button(edit_buttons_frame, text="Valor",
                                  padx=10, pady=5, bd=3, bg="#0099ff",
-                                 command=lambda: self.update_product_by_name_UI('valor'))
+                                 command=lambda: self.update_product_by_name_UI('valor', treeview))
 
         quantity_button = tk.Button(edit_buttons_frame, text="Estoque",
                                     padx=10, pady=5, bd=3, bg="#0099ff",
-                                    command=lambda: self.update_product_by_name_UI('estoque'))
+                                    command=lambda: self.update_product_by_name_UI('estoque', treeview))
 
         #Label for prompt
         edit_label = tk.Label(edit_buttons_frame, text="Qual atributo atualizar?", font=("Arial Bold", 15))
@@ -535,7 +440,8 @@ class CRUD:
                            else edit_buttons_frame.pack_forget())
         button.pack()
 
-    def update_product_by_name_UI(self, attr_choice:str):
+
+    def update_product_by_name_UI(self, attr_choice:str, update_window_treeview: ttk.Treeview):
         #Create a new window
         update_window = tk.Toplevel(self.root, padx=10, pady=10)
         update_window.geometry(self.popup_coords_calc(update_window))
@@ -562,12 +468,9 @@ class CRUD:
                                                 [self.show_warning("Produto já cadastrado.") if self.db_manager.product_exists_by_name(entry.get())
                                                 else
                                                 [self.db_manager.edit_product_by_name(self.get_searched_product_tuple()[1], attr_choice, entry.get()),
-                                                self.update_treeview(),
+                                                self.update_treeview(), #Updates global treeview
+                                                update_window_treeview.delete(*update_window_treeview.get_children()),
+                                                update_window_treeview.insert("", 0, values=self.db_manager.search_product_by_name(self.get_searched_product_tuple()[1]))],
                                                 update_window.destroy(),
-                                                self.show_confirmation("Produto atualizado com sucesso!")]]]]])
+                                                self.show_confirmation("Produto atualizado com sucesso!")]]]])
         button.pack()
-
-
-if __name__ == "__main__":
-    crud = CRUD()
-    crud.root.mainloop()
