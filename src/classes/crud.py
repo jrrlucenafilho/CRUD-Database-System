@@ -505,7 +505,7 @@ class CRUD:
 
         #Make buttons for each edit attribute
         name_button = tk.Button(edit_buttons_frame, text="Nome",
-                                padx=10, pady=5, bd=3, bg="#0099ff",    #TODO: Create another window for editing, for eachbutton
+                                padx=10, pady=5, bd=3, bg="#0099ff",
                                 command=lambda: self.update_product_by_name_UI('nome'))
 
         value_button = tk.Button(edit_buttons_frame, text="Valor",
