@@ -3,9 +3,8 @@ import psycopg2 as pg
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 '''
-Programa assume "user=postgres password=postgres" como credenciais do banco de dados
-E 'loja_de_revendas_jequiti' como nome do BD
-    
+Program assumes "user=postgres password=postgres" as db credentials
+And 'loja_de_revendas_jequiti' as db name
 '''
 # Exists-check and creation funcs for db and tables
 def database_exists(db_name):
@@ -28,7 +27,7 @@ def database_exists(db_name):
     return exists
 
 
-def create_database():
+def init_database():
     #Conneting to PostgreSQL
     connection = pg.connect("user=postgres password=postgres")
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -61,7 +60,7 @@ def table_exists(table_name):
     return exists
 
 
-def add_table(table_name:str, columns:int, cols_info:list[tuple[str, str]]):
+def init_table(table_name:str, columns:int, cols_info:list[tuple[str, str]]):
     #Connection stuff
     connection = pg.connect("user=postgres password=postgres dbname=loja_de_revendas_jequiti")
     db_cursor = connection.cursor()
@@ -86,11 +85,11 @@ def add_table(table_name:str, columns:int, cols_info:list[tuple[str, str]]):
 def main():
     #DB exists check
     if database_exists('loja_de_revendas_jequiti') is False:
-        create_database()
+        init_database()
 
     #Table exists check
     if table_exists('produtos') is False:
-        add_table('produtos', 4, [("nome", "str"), ("valor", "float"), ("estoque", "int")])
+        init_table('produtos', 4, [("nome", "str"), ("valor", "float"), ("estoque", "int")])
 
     crud_manager = CRUD()
     crud_manager.get_root().mainloop()
