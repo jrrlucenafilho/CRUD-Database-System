@@ -459,23 +459,35 @@ class CRUD:
         entry = tk.Entry(update_window)
         entry.pack(padx=10, pady=10)
 
+        #Def funtion for button
+        def on_update_button_click():
+            if entry.get().strip() == '':
+                self.show_warning("Nome não pode ser vazio.")
+                return
+            if not self.db_manager.product_exists_by_name(self.get_searched_product_tuple()[1]):
+                self.show_warning("Produto não encontrado.")
+                update_window.destroy()
+                return
+            if attr_choice == 'name' and self.db_manager.product_exists_by_name(entry.get()):
+                self.show_warning("Produto já cadastrado.")
+                return
+            if not entry.get().isnumeric() and attr_choice == 'estoque':
+                self.show_warning("Valor inválido.")
+                return
+            if not entry.get().replace('.', '').isnumeric() and attr_choice == 'valor':
+                self.show_warning("Valor inválido.")
+                return
+            self.db_manager.edit_product_by_name(self.get_searched_product_tuple()[1], attr_choice, entry.get())
+            self.update_treeview()  #Global treeview
+
+            #Update TopLevel popup treeview
+            update_window_treeview.delete(*update_window_treeview.get_children())
+            update_window_treeview.insert("", 0, values=self.db_manager.search_product_by_name(self.get_searched_product_tuple()[1]))
+            update_window.destroy()
+            self.show_confirmation("Produto atualizado com sucesso!")
+
         #Create a button
         button = tk.Button(update_window, text="Atualizar",
                            padx=10, pady=5, bd=3, bg="#0099ff",
-                           command=lambda: [[self.show_warning("Produto não encontrado."),
-                                                update_window.destroy()]
-                                                if not self.db_manager.product_exists_by_name(self.get_searched_product_tuple()[1])
-                                                else
-                                                [self.show_warning("Valor inválido.") if not entry.get().isnumeric() and attr_choice == 'estoque'
-                                                else
-                                                [self.show_warning("Valor inválido.") if not entry.get().replace('.', '').isnumeric() and attr_choice == 'valor'
-                                                else
-                                                [self.show_warning("Produto já cadastrado.") if self.db_manager.product_exists_by_name(entry.get())
-                                                else
-                                                [self.db_manager.edit_product_by_name(self.get_searched_product_tuple()[1], attr_choice, entry.get()),
-                                                self.update_treeview(), #Updates global treeview
-                                                update_window_treeview.delete(*update_window_treeview.get_children()),
-                                                update_window_treeview.insert("", 0, values=self.db_manager.search_product_by_name(self.get_searched_product_tuple()[1]))],
-                                                update_window.destroy(),
-                                                self.show_confirmation("Produto atualizado com sucesso!")]]]])
+                           command=on_update_button_click)
         button.pack()
