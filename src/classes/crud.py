@@ -109,8 +109,13 @@ class CRUD:
         #Initial Listing
         self.update_treeview()
 
+
     def get_root(self):
         return self.root
+
+
+    def get_db_manager(self):
+        return self.db_manager
 
 
     '''Database Handling'''
