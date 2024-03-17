@@ -9,7 +9,7 @@ class CRUD:
         #GUI Stuff
         self.root = tk.Tk()
         self.root.title("Loja de Revendas Jequiti")
-        self.root.geometry("1130x550")
+        self.root.geometry("900x550")
         self.tree = ttk.Treeview(self.root)
 
         self.title_label = tk.Label(self.root, text="Loja de Revendas Jequiti", font=("Arial", 20))
@@ -59,21 +59,21 @@ class CRUD:
                                        bg="#0099ff")
         self.update_button.grid(row=5, column=3, columnspan=1, pady=10, padx=5, sticky='ew')
 
-        self.list_button = tk.Button(self.root,
-                                        text="Listar",
-                                        font=("Arial", 15),
-                                        width=7, padx=10, pady=5, bd=3,
-                                        bg="#0099ff",
-                                        command=lambda: self.update_treeview())
-        self.list_button.grid(row=5, column=4, columnspan=1, pady=10, padx=5, sticky='ew')
-
         self.list_one_product_button = tk.Button(self.root,
                                                 text="Buscar",
                                                 font=("Arial", 15),
                                                 width=7, padx=10, pady=5, bd=3,
                                                 bg="#0099ff",
                                                 command=lambda: self.buscar_por_nome()) #TODO: Change this into a new TopLevel window
-        self.list_one_product_button.grid(row=5, column=5, columnspan=1, pady=10, padx=5, sticky='ew')
+        self.list_one_product_button.grid(row=5, column=4, columnspan=1, pady=10, padx=5, sticky='ew')
+
+        self.list_button = tk.Button(self.root,
+                                        text="Listar",
+                                        font=("Arial", 15),
+                                        width=7, padx=10, pady=5, bd=3,
+                                        bg="#0099ff",
+                                        command=lambda: self.update_treeview())
+        self.list_button.grid(row=5, column=5, columnspan=1, pady=10, padx=5, sticky='ew')
 
         #Treeview widget
         self.style = ttk.Style()
@@ -242,28 +242,53 @@ class CRUD:
 
     def show_warning(self, message):
         #Create a new window
-        warning_window = tk.Toplevel(self.root)
+        warning_window = tk.Toplevel(self.root, padx=10, pady=10)
 
         #Create a label with the warning message
         warning_label = tk.Label(warning_window, text=message)
         warning_label.pack()
 
         #Create a button to close the window
-        close_button = tk.Button(warning_window, text="Close", command=warning_window.destroy)
+        close_button = tk.Button(warning_window, text="Fechar", command=warning_window.destroy)
         close_button.pack()
 
 
-    #Version that'll accpet yes or no for updating on a whim
+    #Version that'll accept yes or no for updating on a whim
     def show_warning_options(self, message, nome, valor, estoque):
         #Create a new window
-        warning_window = tk.Toplevel(self.root)
+        warning_window = tk.Toplevel(self.root, padx=10, pady=10)
 
         #Create a label with the warning message
         warning_label = tk.Label(warning_window, text=message)
         warning_label.pack()
 
+        #Display old values
+        before_treeview = ttk.Treeview(warning_window, columns=('Nome', 'Valor', 'Estoque'), show='headings', height=1)
+        before_treeview.heading('Nome', text='Nome')
+        before_treeview.heading('Valor', text='Valor')
+        before_treeview.heading('Estoque', text='Estoque')
+
+        prod_info = self.db_manager.search_product_by_name(nome)
+
+        before_treeview.insert("", 0, values=(prod_info[1], prod_info[2], prod_info[3]))
+        before_treeview.pack(padx=10, pady=10)
+
+        #Print Downward arrow
+        arrow_label = tk.Label(warning_window, text="↓")
+        arrow_label.pack()
+
+        #Display current to-be-updated values
+        after_treeview = ttk.Treeview(warning_window, columns=('Nome', 'Valor', 'Estoque'), show='headings', height=1)
+        after_treeview.heading('Nome', text='Nome')
+        after_treeview.heading('Valor', text='Valor')
+        after_treeview.heading('Estoque', text='Estoque')
+
+        #Inserting the values
+        after_treeview.insert("", 0, values=(nome, valor, estoque))
+        after_treeview.pack(padx=10, pady=10)
+
         #Create a 'Yes' button
-        yes_button = tk.Button(warning_window, text="Yes",
+        yes_button = tk.Button(warning_window, text="Sim",
                                command=lambda: [self.db_manager.edit_product_by_name(nome, 'valor', valor),
                                                 self.db_manager.edit_product_by_name(nome, 'estoque', estoque),
                                                 self.update_treeview(),
@@ -272,7 +297,7 @@ class CRUD:
         yes_button.pack()
 
         #Create a 'No' button
-        no_button = tk.Button(warning_window, text="No", 
+        no_button = tk.Button(warning_window, text="Não", 
                               command=lambda: [self.show_confirmation("Operação cancelada."),
                                                warning_window.destroy()])
         no_button.pack()
@@ -280,14 +305,14 @@ class CRUD:
 
     def show_confirmation(self, message):
         #Create a new window
-        confirmation_window = tk.Toplevel(self.root)
+        confirmation_window = tk.Toplevel(self.root, padx=10, pady=10)
 
         #Create a label with the confirmation message
         confirmation_label = tk.Label(confirmation_window, text=message)
         confirmation_label.pack()
 
         #Create a button to close the window
-        close_button = tk.Button(confirmation_window, text="Close", command=confirmation_window.destroy)
+        close_button = tk.Button(confirmation_window, text="Fechar", command=confirmation_window.destroy)
         close_button.pack()
 
 
@@ -299,20 +324,32 @@ class CRUD:
             self.tree.insert("", 0, values=tuple)
 
 
+    def clear_entries(self):
+        self.name_entry.delete(0, tk.END)
+        self.price_entry.delete(0, tk.END)
+        self.quantity_entry.delete(0, tk.END)
+
+
     def insert_data_UI(self):
         nome = str(self.name_entry.get())
-        valor = float(self.price_entry.get())
-        estoque = int(self.quantity_entry.get())
+        valor = str(self.price_entry.get())
+        estoque = str(self.quantity_entry.get())
 
-        #TODO: maybe do is-empty-checks here (for name mainly), teahcer said these won't matter
+        if nome == "" or valor == "" or estoque == "":
+            self.show_warning("Preencha todos os campos.")
+            return
+
+        #Post-check conversion
+        valor = float(valor)
+        estoque = int(estoque)
 
         #Check if product already exists (by name)
         if self.db_manager.product_exists_by_name(nome) is True:
             self.show_warning_options("Produto já cadastrado. Deseja inserir os novos dados?", nome, valor, estoque)
-            return
         else:
             self.db_manager.insert_product(nome, valor, estoque)
             self.show_confirmation("Produto cadastrado com sucesso!")
+        self.clear_entries()
 
         #Updating treeview
         self.update_treeview()
@@ -320,7 +357,7 @@ class CRUD:
 
     def delete_data_UI(self):
         #Create a new window
-        delete_window = tk.Toplevel(self.root)
+        delete_window = tk.Toplevel(self.root, padx=10, pady=10)
 
         #Create a label
         label = tk.Label(delete_window, text="Nome do Produto a ser deletado:")
@@ -331,7 +368,7 @@ class CRUD:
         entry.pack()
 
         #Create a 'Delete' button
-        delete_button = tk.Button(delete_window, text="Delete",
+        delete_button = tk.Button(delete_window, text="Deletar",
                                   command=lambda: [[self.show_warning("Produto não encontrado."),
                                                     delete_window.destroy()]
                                                     if not self.db_manager.product_exists_by_name(entry.get()) 
@@ -344,7 +381,7 @@ class CRUD:
         delete_button.pack()
 
         #Create a 'Cancel' button
-        cancel_button = tk.Button(delete_window, text="Cancel", command=delete_window.destroy)
+        cancel_button = tk.Button(delete_window, text="Cancelar", command=delete_window.destroy)
         cancel_button.pack()
 
 
