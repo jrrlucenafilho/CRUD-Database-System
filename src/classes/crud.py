@@ -5,6 +5,7 @@ from tkinter import ttk
 class CRUD:
     def __init__(self):
         self.db_manager = DB_Manager()
+        self.search_product_tuple = None
 
         #GUI Stuff
         self.root = tk.Tk()
@@ -57,14 +58,15 @@ class CRUD:
                                        text="Atualizar",
                                        font=("Arial", 15),
                                        width=7, padx=10, pady=5, bd=3,
-                                       bg="#0099ff")
+                                       bg="#0099ff",
+                                       command=lambda: self.update_product_UI())
 
         self.search_product_button = tk.Button(buttons_frame,
                                                 text="Buscar",
                                                 font=("Arial", 15),
                                                 width=7, padx=10, pady=5, bd=3,
                                                 bg="#0099ff",
-                                                command=lambda: self.search_product_UI()) #TODO: Change this into a new TopLevel window
+                                                command=lambda: self.search_product_UI())
 
         self.list_button = tk.Button(buttons_frame,
                                         text="Listar",
@@ -141,7 +143,7 @@ class CRUD:
 
 
     def listar_produtos(self):
-        rows_list = self.db_manager.list_products()     #TODO: Print this with tkinter later
+        rows_list = self.db_manager.list_products()
 
         #First check if table is empty
         if self.db_manager.is_table_empty('produtos') is True:
@@ -162,7 +164,7 @@ class CRUD:
             print("Produto a atualizar não encontrado.")
             return False
 
-        #Ask for prompt on what to update      #TODO Change to buttons with tkinter later
+        #Ask for prompt on what to update
         print("\n===== Menu =====")
         print("1. Nome")
         print("2. Valor")
@@ -234,7 +236,7 @@ class CRUD:
             print(f"{row[1]} | {row[3]}")
 
 
-    '''UI Handling'''
+    '''CRUD UI utility functions'''
     def reverse_tuples(self, tuples):
         return tuples[::-1]
 
@@ -358,7 +360,30 @@ class CRUD:
         self.quantity_entry.delete(0, tk.END)
 
 
-    '''UI Functions'''
+    def search_product(self, entry, treeview):
+        if not self.db_manager.product_exists_by_name(entry.get()):
+            self.show_warning("Produto não encontrado.")
+            treeview.delete(*treeview.get_children())
+            return False
+        else:
+            self.searched_product_tuple = self.db_manager.search_product_by_name(entry.get())
+            treeview.insert("", 0, values=(self.searched_product_tuple[0], self.searched_product_tuple[1], self.searched_product_tuple[2], self.searched_product_tuple[3]))
+            self.show_confirmation("Produto encontrado!")
+            return True
+
+
+    def get_searched_product_tuple(self):
+        return self.searched_product_tuple
+
+
+    def search_and_unhide_edit_buttons(self, entry, treeview, edit_buttons_frame):
+        result = self.search_product(entry, treeview)
+        edit_buttons_frame.pack()
+
+        return result
+
+
+    '''UI CRUD Functions'''
     def insert_product_UI(self):
         nome = str(self.name_entry.get())
         valor = str(self.price_entry.get())
@@ -447,15 +472,68 @@ class CRUD:
         #Create a button
         button = tk.Button(search_window, text="Buscar",
                            padx=10, pady=5, bd=3, bg="#0099ff",
-                           command=lambda: [self.show_warning("Produto não encontrado."),
-                                            treeview.delete(*treeview.get_children())]
-                                            if not self.db_manager.product_exists_by_name(entry.get())
-                                            else [prod_info := self.db_manager.search_product_by_name(entry.get()),
-                                            treeview.insert("", 0, values=(prod_info[0], prod_info[1], prod_info[2], prod_info[3])),
-                                            self.show_confirmation("Produto encontrado!")])
+                           command=lambda: self.search_product(entry, treeview))
 
         button.pack()
 
+
+    def update_product_UI(self):
+        #First search for the product to be updated
+        #Create a new window
+        search_window = tk.Toplevel(self.root, padx=10, pady=10)
+        search_window.geometry(self.popup_coords_calc(search_window))
+
+        #Create a label
+        label = tk.Label(search_window, text="Nome do Produto a ser atualizado:")
+        label.pack()
+
+        #Create an entry widget
+        entry = tk.Entry(search_window)
+        entry.pack()
+
+        #Create a teeview to show searched product's data
+        treeview = ttk.Treeview(search_window, columns=('Cod. Produto','Nome', 'Valor', 'Estoque'), show='headings', height=1)
+        treeview.heading('Cod. Produto', text='Cod. Produto')
+        treeview.heading('Nome', text='Nome')
+        treeview.heading('Valor', text='Valor')
+        treeview.heading('Estoque', text='Estoque')
+        treeview.pack(padx=10, pady=10)
+
+        #Make a frame for next buttons
+        edit_buttons_frame = tk.Frame(search_window)
+        edit_buttons_frame.pack_forget()
+
+        #Make buttons for each edit attribute
+        name_button = tk.Button(edit_buttons_frame, text="Nome",
+                                padx=10, pady=5, bd=3, bg="#0099ff",    #TODO: Create another window for editing, for eachbutton
+                                command=lambda: self.update_product_by_name_UI('nome', entry.get()))
+
+        value_button = tk.Button(edit_buttons_frame, text="Valor",
+                                 padx=10, pady=5, bd=3, bg="#0099ff",
+                                 command=lambda: self.update_product_by_name_UI('valor', entry.get()))
+
+        quantity_button = tk.Button(edit_buttons_frame, text="Estoque",
+                                    padx=10, pady=5, bd=3, bg="#0099ff",
+                                    command=lambda: self.update_product_by_name_UI('estoque', entry.get()))
+
+        #Label for prompt
+        edit_label = tk.Label(edit_buttons_frame, text="Qual atributo atualizar?", font=("Arial Bold", 15))
+        edit_label.grid(row=0, column=0, columnspan=3, padx=5, pady=5)
+
+        name_button.grid(row=1, column=0, padx=5, pady=5)
+        value_button.grid(row=1, column=1, padx=5, pady=5)
+        quantity_button.grid(row=1, column=2, padx=5, pady=5)
+
+        #Hide frame at first as there's no product to be updated yet
+        edit_buttons_frame.pack_forget()
+
+        #Create a button for searching
+        button = tk.Button(search_window, text="Buscar",
+                           padx=10, pady=5, bd=3, bg="#0099ff",
+                           command=lambda: edit_buttons_frame.pack()
+                           if self.search_and_unhide_edit_buttons(entry, treeview, edit_buttons_frame)
+                           else edit_buttons_frame.pack_forget())
+        button.pack()
 
 if __name__ == "__main__":
     crud = CRUD()
