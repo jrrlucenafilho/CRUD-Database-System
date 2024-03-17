@@ -9,7 +9,7 @@ class CRUD:
         #GUI Stuff
         self.root = tk.Tk()
         self.root.title("Loja de Revendas Jequiti")
-        self.root.geometry("900x570")
+        self.root.geometry("840x570")
         self.tree = ttk.Treeview(self.root)
 
         self.title_label = tk.Label(self.root, text="Loja de Revendas Jequiti", font=("Arial", 20))
@@ -44,14 +44,14 @@ class CRUD:
                                        font=("Arial", 15),
                                        width=7, padx=5, pady=5, bd=3,
                                        bg="#0099ff",
-                                       command=lambda: self.insert_data_UI())
+                                       command=lambda: self.insert_product_UI())
 
         self.delete_button = tk.Button(buttons_frame, 
                                        text="Deletar",
                                        font=("Arial", 15),
                                        width=7, padx=10, pady=5, bd=3,
                                        bg="#0099ff",
-                                       command=lambda: self.delete_data_UI())
+                                       command=lambda: self.delete_product_UI())
 
         self.update_button = tk.Button(buttons_frame,
                                        text="Atualizar",
@@ -59,12 +59,12 @@ class CRUD:
                                        width=7, padx=10, pady=5, bd=3,
                                        bg="#0099ff")
 
-        self.list_one_product_button = tk.Button(buttons_frame,
+        self.search_product_button = tk.Button(buttons_frame,
                                                 text="Buscar",
                                                 font=("Arial", 15),
                                                 width=7, padx=10, pady=5, bd=3,
                                                 bg="#0099ff",
-                                                command=lambda: self.buscar_por_nome()) #TODO: Change this into a new TopLevel window
+                                                command=lambda: self.search_product_UI()) #TODO: Change this into a new TopLevel window
 
         self.list_button = tk.Button(buttons_frame,
                                         text="Listar",
@@ -77,7 +77,7 @@ class CRUD:
         self.create_button.grid(row=5, column=1, columnspan=1, pady=10, padx=5)
         self.delete_button.grid(row=5, column=2, columnspan=1, pady=10, padx=5)
         self.update_button.grid(row=5, column=3, columnspan=1, pady=10, padx=5)
-        self.list_one_product_button.grid(row=5, column=4, columnspan=1, pady=10, padx=5)
+        self.search_product_button.grid(row=5, column=4, columnspan=1, pady=10, padx=5)
         self.list_button.grid(row=5, column=5, columnspan=1, pady=10, padx=5)
 
         buttons_frame.grid(row=5, column=1, columnspan=4, pady=10, padx=10)
@@ -242,13 +242,16 @@ class CRUD:
     def show_warning(self, message):
         #Create a new window
         warning_window = tk.Toplevel(self.root, padx=10, pady=10)
+        warning_window.geometry(self.popup_coords_calc(warning_window))
 
         #Create a label with the warning message
         warning_label = tk.Label(warning_window, text=message)
         warning_label.pack()
 
         #Create a button to close the window
-        close_button = tk.Button(warning_window, text="Fechar", command=warning_window.destroy)
+        close_button = tk.Button(warning_window, text="Fechar",
+                                  padx=10, pady=5, bd=3, bg="#0099ff",
+                                 command=warning_window.destroy)
         close_button.pack()
 
 
@@ -256,6 +259,7 @@ class CRUD:
     def show_warning_options(self, message, nome, valor, estoque):
         #Create a new window
         warning_window = tk.Toplevel(self.root, padx=10, pady=10)
+        warning_window.geometry(self.popup_coords_calc(warning_window))
 
         #Create a label with the warning message
         warning_label = tk.Label(warning_window, text=message)
@@ -286,33 +290,58 @@ class CRUD:
         after_treeview.insert("", 0, values=(nome, valor, estoque))
         after_treeview.pack(padx=10, pady=10)
 
-        #Create a 'Yes' button
-        yes_button = tk.Button(warning_window, text="Sim",
+        #Create buttons frame
+        buttons_frame = tk.Frame(warning_window)
+
+        #'Yes' button
+        yes_button = tk.Button(buttons_frame, text="Sim",
+                               padx=10, pady=5, bd=3, bg="#0099ff",
                                command=lambda: [self.db_manager.edit_product_by_name(nome, 'valor', valor),
                                                 self.db_manager.edit_product_by_name(nome, 'estoque', estoque),
                                                 self.update_treeview(),
                                                 warning_window.destroy(),
                                                 self.show_confirmation("Produto atualizado com sucesso!")])
-        yes_button.pack()
 
-        #Create a 'No' button
-        no_button = tk.Button(warning_window, text="Não", 
+        #'No' button
+        no_button = tk.Button(buttons_frame, text="Não",
+                               padx=10, pady=5, bd=3, bg="#0099ff",
                               command=lambda: [self.show_confirmation("Operação cancelada."),
                                                warning_window.destroy()])
-        no_button.pack()
+
+        yes_button.grid(row=0, column=0, padx=5, pady=5)
+        no_button.grid(row=0, column=1, padx=5, pady=5)
+
+        buttons_frame.pack()
 
 
     def show_confirmation(self, message):
         #Create a new window
         confirmation_window = tk.Toplevel(self.root, padx=10, pady=10)
+        confirmation_window.geometry(self.popup_coords_calc(confirmation_window))
 
         #Create a label with the confirmation message
         confirmation_label = tk.Label(confirmation_window, text=message)
         confirmation_label.pack()
 
         #Create a button to close the window
-        close_button = tk.Button(confirmation_window, text="Fechar", command=confirmation_window.destroy)
+        close_button = tk.Button(confirmation_window, text="Fechar",
+                                 padx=10, pady=5, bd=3, bg="#0099ff",
+                                 command=confirmation_window.destroy)
         close_button.pack()
+
+    #Returns str that allows it to popup in the middle main window (roughly)
+    def popup_coords_calc(self, topLevel: tk.Toplevel):
+        # Get the main window's position and dimensions
+        main_window_x = self.root.winfo_x()
+        main_window_y = self.root.winfo_y()
+        main_window_width = self.root.winfo_width()
+        main_window_height = self.root.winfo_height()
+
+        # Calculate the position to center the Toplevel window within the main window
+        x = main_window_x + (main_window_width - topLevel.winfo_reqwidth()) / 2
+        y = main_window_y + (main_window_height - topLevel.winfo_reqheight()) / 2
+
+        return f'+{int(x)}+{int(y)}'
 
 
     def update_treeview(self):
@@ -329,7 +358,8 @@ class CRUD:
         self.quantity_entry.delete(0, tk.END)
 
 
-    def insert_data_UI(self):
+    '''UI Functions'''
+    def insert_product_UI(self):
         nome = str(self.name_entry.get())
         valor = str(self.price_entry.get())
         estoque = str(self.quantity_entry.get())
@@ -354,9 +384,10 @@ class CRUD:
         self.update_treeview()
 
 
-    def delete_data_UI(self):
+    def delete_product_UI(self):
         #Create a new window
         delete_window = tk.Toplevel(self.root, padx=10, pady=10)
+        delete_window.geometry(self.popup_coords_calc(delete_window))
 
         #Create a label
         label = tk.Label(delete_window, text="Nome do Produto a ser deletado:")
@@ -366,8 +397,12 @@ class CRUD:
         entry = tk.Entry(delete_window)
         entry.pack()
 
+        #Create buttons frame
+        buttons_frame = tk.Frame(delete_window)
+
         #Create a 'Delete' button
-        delete_button = tk.Button(delete_window, text="Deletar",
+        delete_button = tk.Button(buttons_frame, text="Deletar",
+                                  padx=10, pady=5, bd=3, bg="#0099ff",
                                   command=lambda: [[self.show_warning("Produto não encontrado."),
                                                     delete_window.destroy()]
                                                     if not self.db_manager.product_exists_by_name(entry.get()) 
@@ -376,12 +411,50 @@ class CRUD:
                                                     self.update_treeview(),
                                                     delete_window.destroy(),
                                                     self.show_confirmation("Produto deletado com sucesso!")]])
-        
-        delete_button.pack()
 
         #Create a 'Cancel' button
-        cancel_button = tk.Button(delete_window, text="Cancelar", command=delete_window.destroy)
-        cancel_button.pack()
+        cancel_button = tk.Button(buttons_frame, text="Cancelar",
+                                  padx=10, pady=5, bd=3, bg="#0099ff",
+                                  command=delete_window.destroy)
+
+        delete_button.grid(row=0, column=0, padx=5, pady=5)
+        cancel_button.grid(row=0, column=1, padx=5, pady=5)
+
+        buttons_frame.pack()
+
+
+    def search_product_UI(self):
+        #Create a new window
+        search_window = tk.Toplevel(self.root, padx=10, pady=10)
+        search_window.geometry(self.popup_coords_calc(search_window))
+
+        #Create a label
+        label = tk.Label(search_window, text="Nome do Produto a ser buscado:")
+        label.pack()
+
+        #Create an entry widget
+        entry = tk.Entry(search_window)
+        entry.pack()
+
+        #Create a teeview to show searched product's data
+        treeview = ttk.Treeview(search_window, columns=('Cod. Produto','Nome', 'Valor', 'Estoque'), show='headings', height=1)
+        treeview.heading('Cod. Produto', text='Cod. Produto')
+        treeview.heading('Nome', text='Nome')
+        treeview.heading('Valor', text='Valor')
+        treeview.heading('Estoque', text='Estoque')
+        treeview.pack(padx=10, pady=10)
+
+        #Create a button
+        button = tk.Button(search_window, text="Buscar",
+                           padx=10, pady=5, bd=3, bg="#0099ff",
+                           command=lambda: [self.show_warning("Produto não encontrado."),
+                                            treeview.delete(*treeview.get_children())]
+                                            if not self.db_manager.product_exists_by_name(entry.get())
+                                            else [prod_info := self.db_manager.search_product_by_name(entry.get()),
+                                            treeview.insert("", 0, values=(prod_info[0], prod_info[1], prod_info[2], prod_info[3])),
+                                            self.show_confirmation("Produto encontrado!")])
+
+        button.pack()
 
 
 if __name__ == "__main__":
