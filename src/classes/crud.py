@@ -18,7 +18,7 @@ class CRUD:
 
         #Labels for each attribute
         self.name_label = tk.Label(self.root, text="Nome", font=("Arial Bold", 15))
-        self.price_label = tk.Label(self.root, text="Preço", font=("Arial Bold", 15))
+        self.price_label = tk.Label(self.root, text="Valor", font=("Arial Bold", 15))
         self.quantity_label = tk.Label(self.root, text="Estoque", font=("Arial Bold", 15))
 
         #Settign up their spots in the grid
@@ -89,17 +89,17 @@ class CRUD:
         self.style.configure("Treeview.Heading", font=("Arial Bold", 15))
 
         #Setting uo cols
-        self.tree["columns"] = ("Cod. Produto", "Nome", "Preço", "Estoque") 
+        self.tree["columns"] = ("Cod. Produto", "Nome", "Valor", "Estoque") 
         self.tree.column("#0", width=0, stretch=tk.NO)
         self.tree.column("Cod. Produto", anchor=tk.W, width=150)
         self.tree.column("Nome", anchor=tk.W, width=250)
-        self.tree.column("Preço", anchor=tk.W, width=100)
+        self.tree.column("Valor", anchor=tk.W, width=100)
         self.tree.column("Estoque", anchor=tk.W, width=100)
 
         #Setting up headings
         self.tree.heading("Cod. Produto", text="Cod. Produto", anchor=tk.W)
         self.tree.heading("Nome", text="Nome", anchor=tk.W)
-        self.tree.heading("Preço", text="Preço", anchor=tk.W)
+        self.tree.heading("Valor", text="Valor", anchor=tk.W)
         self.tree.heading("Estoque", text="Estoque", anchor=tk.W)
 
         #Config actual grid
@@ -506,15 +506,15 @@ class CRUD:
         #Make buttons for each edit attribute
         name_button = tk.Button(edit_buttons_frame, text="Nome",
                                 padx=10, pady=5, bd=3, bg="#0099ff",    #TODO: Create another window for editing, for eachbutton
-                                command=lambda: self.update_product_by_name_UI('nome', entry.get()))
+                                command=lambda: self.update_product_by_name_UI('nome'))
 
         value_button = tk.Button(edit_buttons_frame, text="Valor",
                                  padx=10, pady=5, bd=3, bg="#0099ff",
-                                 command=lambda: self.update_product_by_name_UI('valor', entry.get()))
+                                 command=lambda: self.update_product_by_name_UI('valor'))
 
         quantity_button = tk.Button(edit_buttons_frame, text="Estoque",
                                     padx=10, pady=5, bd=3, bg="#0099ff",
-                                    command=lambda: self.update_product_by_name_UI('estoque', entry.get()))
+                                    command=lambda: self.update_product_by_name_UI('estoque'))
 
         #Label for prompt
         edit_label = tk.Label(edit_buttons_frame, text="Qual atributo atualizar?", font=("Arial Bold", 15))
@@ -534,6 +534,39 @@ class CRUD:
                            if self.search_and_unhide_edit_buttons(entry, treeview, edit_buttons_frame)
                            else edit_buttons_frame.pack_forget())
         button.pack()
+
+    def update_product_by_name_UI(self, attr_choice:str):
+        #Create a new window
+        update_window = tk.Toplevel(self.root, padx=10, pady=10)
+        update_window.geometry(self.popup_coords_calc(update_window))
+
+        #Create a label
+        label = tk.Label(update_window, text=f"Digite o novo {attr_choice} do produto:")
+        label.pack(padx=10, pady=10)
+
+        #Create an entry widget
+        entry = tk.Entry(update_window)
+        entry.pack(padx=10, pady=10)
+
+        #Create a button
+        button = tk.Button(update_window, text="Atualizar",
+                           padx=10, pady=5, bd=3, bg="#0099ff",
+                           command=lambda: [[self.show_warning("Produto não encontrado."),
+                                                update_window.destroy()]
+                                                if not self.db_manager.product_exists_by_name(self.get_searched_product_tuple()[1])
+                                                else
+                                                [self.show_warning("Valor inválido.") if not entry.get().isnumeric() and attr_choice == 'estoque'
+                                                else
+                                                [self.show_warning("Valor inválido.") if not entry.get().replace('.', '').isnumeric() and attr_choice == 'valor'
+                                                else
+                                                [self.show_warning("Produto já cadastrado.") if self.db_manager.product_exists_by_name(entry.get())
+                                                else
+                                                [self.db_manager.edit_product_by_name(self.get_searched_product_tuple()[1], attr_choice, entry.get()),
+                                                self.update_treeview(),
+                                                update_window.destroy(),
+                                                self.show_confirmation("Produto atualizado com sucesso!")]]]]])
+        button.pack()
+
 
 if __name__ == "__main__":
     crud = CRUD()
