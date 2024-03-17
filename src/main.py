@@ -28,7 +28,6 @@ def database_exists(db_name):
 
 
 def init_database():
-    #Conneting to PostgreSQL
     connection = pg.connect("user=postgres password=postgres")
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
@@ -42,7 +41,6 @@ def init_database():
 
 
 def table_exists(table_name):
-    #Connecting
     connection = pg.connect("user=postgres password=postgres dbname=loja_de_revendas_jequiti")
     db_cursor = connection.cursor()
 
@@ -61,7 +59,6 @@ def table_exists(table_name):
 
 
 def init_table(table_name:str, columns:int, cols_info:list[tuple[str, str]]):
-    #Connection stuff
     connection = pg.connect("user=postgres password=postgres dbname=loja_de_revendas_jequiti")
     db_cursor = connection.cursor()
 
