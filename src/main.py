@@ -90,5 +90,6 @@ def main():
     crud_manager = CRUD_Manager()
     crud_manager.get_root().mainloop()
 
+
 if __name__ == "__main__":
     main()
