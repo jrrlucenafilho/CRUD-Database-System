@@ -74,7 +74,6 @@ def init_table(table_name:str, columns:int, cols_info:list[tuple[str, str]]):
         query += f"{cols_info[i][0]} {cols_info[i][1]}, "
     query = query[:-2] + ")"
 
-    #Execute query
     db_cursor.execute(query)
     connection.commit()
 
