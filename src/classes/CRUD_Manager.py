@@ -131,21 +131,6 @@ class CRUD_Manager:
         return self.db_manager.database_exists(nome)
 
 
-    '''def gerar_relatorio_estoque(self): TODO: Implement this one with tkinter
-        #Check if table is empty
-        if self.db_manager.is_table_empty('produtos') is True:
-            print("Não há produtos cadastrados.")
-            return False
-
-        #Print the rows (tkinter later)
-        rows_list = self.db_manager.list_products()
-        print("Relatório de Estoque:")
-        print("Nome | Estoque")
-
-        for row in rows_list:
-            print(f"{row[1]} | {row[3]}")'''
-
-
     '''CRUD UI utility functions'''
     def reverse_tuples(self, tuples):
         return tuples[::-1]
