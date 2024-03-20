@@ -80,7 +80,7 @@ class DB_Manager:
 
         #Fetch one row
         row = self.db_cursor.fetchone()
-
+        #TODO: Add try_except blocks to handle closing (and closse connections duh)
         #If a row was fetched, the product exists
         return row is not None
 
