@@ -48,7 +48,7 @@ class UI_Manager:
                                         font=("Arial", 15),
                                         width=7, padx=5, pady=5, bd=3,
                                         bg="#0099ff",
-                                        command=lambda: self.test())
+                                        command=lambda: self.register_client_UI())
         self.client_button_1.grid(row=0, column=1, padx=10, pady=10)
 
         self.seller_button_2 = tk.Button(labels_frame,
@@ -195,13 +195,13 @@ class UI_Manager:
 
     #Returns str that allows it to popup in the middle main window (roughly)
     def popup_coords_calc(self, topLevel: tk.Toplevel):
-        # Get the main window's position and dimensions
+        #Get the main window's position and dimensions
         main_window_x = self.root.winfo_x()
         main_window_y = self.root.winfo_y()
         main_window_width = self.root.winfo_width()
         main_window_height = self.root.winfo_height()
 
-        # Calculate the position to center the Toplevel window within the main window
+        #Calculate the position to center the Toplevel window within the main window
         x = main_window_x + (main_window_width - topLevel.winfo_reqwidth()) / 2
         y = main_window_y + (main_window_height - topLevel.winfo_reqheight()) / 2
 
@@ -243,6 +243,16 @@ class UI_Manager:
         edit_buttons_frame.pack()
 
         return result
+
+    '''Utility part 2'''
+    #Converts date from 'dd/mm/yyyy' to 'yyyy-mm-dd'
+    def convert_date_format(self, date):
+        day, month, year = date.split('/')
+        return f'{year}-{month}-{day}'
+
+
+    def clean_cpf(self, cpf):
+        return ''.join(filter(str.isdigit, cpf))
 
 
     '''UI CRUD Functions'''
@@ -464,7 +474,7 @@ class UI_Manager:
 
         #Inserting the values
         for product in self.reverse_tuples(self.db_manager.list_products()):
-            stock = self.db_manager.get_one_stock(product[0])  # assuming product[0] is the product code
+            stock = self.db_manager.get_one_stock(product[0])  #assuming product[0] is the product code
             self.tree.insert("", 0, values=product + (stock,))
 
         #Create a button
@@ -472,3 +482,75 @@ class UI_Manager:
                            padx=10, pady=5, bd=3, bg="#0099ff",
                            command=stock_window.destroy)
         button.pack()
+
+
+    #Function that opens a new window for registering clients
+    #Basically adding them to the clients table
+    def register_client_UI(self):
+        # Create a new window
+        client_register_window = tk.Toplevel(self.root, padx=10, pady=10)
+        client_register_window.geometry(self.popup_coords_calc(client_register_window))
+
+        # Frame and Entry for cpf
+        cpf_frame = tk.Frame(client_register_window)
+        cpf_frame.pack(fill='x')
+        tk.Label(cpf_frame, text="CPF: ").pack(side='left')
+        self.cpf_entry = tk.Entry(cpf_frame)
+        self.cpf_entry.pack(side='right', expand=True)
+
+        # Frame and Entry for nome
+        nome_frame = tk.Frame(client_register_window)
+        nome_frame.pack(fill='x')
+        tk.Label(nome_frame, text="Nome: ").pack(side='left')
+        self.nome_entry = tk.Entry(nome_frame)
+        self.nome_entry.pack(side='right', expand=True)
+
+        # Frame and Entry for dataNascimento
+        dataNascimento_frame = tk.Frame(client_register_window)
+        dataNascimento_frame.pack(fill='x')
+        tk.Label(dataNascimento_frame, text="Data de Nascimento: ").pack(side='left')
+        self.dataNascimento_entry = tk.Entry(dataNascimento_frame)
+        self.dataNascimento_entry.pack(side='right', expand=True)
+
+        # Frame and Entry for email
+        email_frame = tk.Frame(client_register_window)
+        email_frame.pack(fill='x')
+        tk.Label(email_frame, text="Email: ").pack(side='left')
+        self.email_entry = tk.Entry(email_frame)
+        self.email_entry.pack(side='right', expand=True)
+
+        # Frame and Entry for senha
+        senha_frame = tk.Frame(client_register_window)
+        senha_frame.pack(fill='x')
+        tk.Label(senha_frame, text="Senha: ").pack(side='left')
+        self.senha_entry = tk.Entry(senha_frame, show="*")  # Password is censored with *
+        self.senha_entry.pack(side='right', expand=True)
+
+        # Checkbutton for isFlamengo
+        self.isFlamengo_var = tk.IntVar()
+        self.isFlamengo_check = tk.Checkbutton(client_register_window, text="Torcedor do Flamengo", variable=self.isFlamengo_var)
+        self.isFlamengo_check.pack()
+
+        # Checkbutton for onePieceFan
+        self.onePieceFan_var = tk.IntVar()
+        self.onePieceFan_check = tk.Checkbutton(client_register_window, text="Fã de One Piece", variable=self.onePieceFan_var)
+        self.onePieceFan_check.pack()
+
+        # Checkbutton for fromSousa
+        self.fromSousa_var = tk.IntVar()
+        self.fromSousa_check = tk.Checkbutton(client_register_window, text="Nascido(a) em Sousa", variable=self.fromSousa_var)
+        self.fromSousa_check.pack()
+
+        # Create a button
+        button = tk.Button(client_register_window, text="Cadastrar",
+                        padx=10, pady=5, bd=3, bg="#0099ff",
+                        command=lambda: self.db_manager.client.add_client(
+                            self.clean_cpf(self.cpf_entry.get()),
+                            self.nome_entry.get(),
+                            self.dataNascimento_entry.get(),    #HAS to be in 'dd/mm/yyyy' format
+                            self.email_entry.get(),
+                            self.senha_entry.get(),
+                            bool(self.isFlamengo_var.get()),
+                            bool(self.onePieceFan_var.get()),
+                            bool(self.fromSousa_var.get())))    #TODO: add a check for empty values (cant let go to db)
+        button.pack()                                           #And a check for cpf already existing #And a final "success" window

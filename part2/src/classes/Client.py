@@ -6,8 +6,8 @@ class Client:
         self.connection_pool = pg.pool.SimpleConnectionPool(
             1, 10, user='postgres', password='postgres', dbname='loja_de_revendas_jequiti'
         )
-        self.table_name = "clients"
-        self.view_name = "client_data_view"
+        self.table_name = "clientes"
+        self.view_name = "cliente_data_view"
         self._create_clients_table()
         self._create_client_data_view()
 

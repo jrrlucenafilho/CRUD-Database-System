@@ -109,8 +109,8 @@ def setup_all_tables():
                    'cod_produto', False)
 
     if table_exists('clientes') is False:
-        init_table('clientes', 9, [('cpf', 'str'), ('nome', 'str'), ('dataNascimento', 'str'), ('email', 'str'),
-                                   ('senha', 'str'), ('isFlamengo', 'bool'), ('onePieceFan', 'bool'), ('fromSousa', 'bool')]
+        init_table('clientes', 9, [('cpf', 'str'), ('nome', 'str'), ('data_nascimento', 'str'), ('email', 'str'),
+                                   ('senha', 'str'), ('is_flamengo', 'bool'), ('one_piece_fan', 'bool'), ('from_sousa', 'bool')]
                    ,'cod_cliente', False)
 
     if table_exists('vendedor') is False:
