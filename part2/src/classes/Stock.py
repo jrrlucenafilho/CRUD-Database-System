@@ -46,6 +46,7 @@ class Stock:
         """
         self.cursor.execute(query)
 
+
     '''Procedure for generating a monthly sales report'''
     def criar_stored_procedure_sales_report(self):
             try:
@@ -76,7 +77,6 @@ class Stock:
                 $$;
                 """
 
-                #Executar a instrução para criar a stored procedure
                 db_cursor.execute(procedure_sql)
                 connection.commit()
 
