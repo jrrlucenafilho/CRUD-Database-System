@@ -1,6 +1,7 @@
 from classes.UI_Manager import UI_Manager
 import psycopg2 as pg
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from psycopg2.pool import SimpleConnectionPool
 
 '''
 Program assumes "user=postgres password=postgres" as db credentials
@@ -98,6 +99,33 @@ def set_foreign_key(table_name: str, foreign_key: str, foreign_table_name: str):
     connection.close()
 
 
+#Inits monthly report table
+def init_sales_report_table():
+    try:
+        connection = pg.connect("user=postgres password=postgres dbname=loja_de_revendas_jequiti")
+        db_cursor = connection.cursor()
+
+        # Create the relatorio_estoque table
+        db_cursor.execute("""
+            CREATE TABLE IF NOT EXISTS relatorio_estoque (
+                cod_vendedor INT,
+                nome VARCHAR(255),
+                qtd_total INT,
+                valor_total FLOAT,
+                FOREIGN KEY (cod_vendedor) REFERENCES vendedor(cod_vendedor)
+            )
+        """)
+
+        connection.commit()
+
+    except Exception as e:
+        print(f"Error creating table: {e}")
+
+    finally:
+        db_cursor.close()
+        connection.close()
+
+
 def setup_all_tables():
     #DB exists check
     if database_exists('loja_de_revendas_jequiti') is False:
@@ -132,6 +160,8 @@ def setup_all_tables():
     if table_exists('estoque') is False:
         init_table('estoque', 2, [('qtd_produto', 'int')],
                    'cod_produto', True, 'produtos')
+
+    init_sales_report_table()
 
     #Now setting up foreign keys that aren't primary keys (and to which table they point to)
     set_foreign_key('pedido', 'cod_cliente', 'clientes')

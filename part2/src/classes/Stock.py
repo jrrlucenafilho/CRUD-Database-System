@@ -47,12 +47,12 @@ class Stock:
         self.cursor.execute(query)
 
     '''Procedure for generating a monthly sales report'''
-    def criar_stored_procedure(self):
+    def criar_stored_procedure_sales_report(self):
             try:
                 connection = self.connection_pool.getconn()
                 db_cursor = connection.cursor()
 
-                #Instrução para criar a stored procedure
+                #Instrução para criar a stored procedure com do report mensal
                 procedure_sql = """
                 CREATE OR REPLACE PROCEDURE gerar_relatorio_vendas_mensal(data_inicio DATE, data_fim DATE)
                 LANGUAGE plpgsql AS $$
@@ -68,8 +68,9 @@ class Stock:
                         WHERE c.data_compra BETWEEN data_inicio AND data_fim
                         GROUP BY s.cod_vendedor, s.nome
                     LOOP
-                        -- Exibir relatório para cada vendedor
-                        RAISE NOTICE 'Vendedor: % | Quantidade total: % | Valor total: R$ %.2f', vendedor.nome, vendedor.quantidade_total, vendedor.valor_total;
+                        -- Inserir dados na tabela relatorio_mensal
+                        EXECUTE 'INSERT INTO relatorio_mensal (cod_vendedor, nome, quantidade_total, valor_total) VALUES ($1, $2, $3, $4)'
+                        USING vendedor.cod_vendedor, vendedor.nome, vendedor.quantidade_total, vendedor.valor_total;
                     END LOOP;
                 END;
                 $$;
@@ -79,10 +80,12 @@ class Stock:
                 db_cursor.execute(procedure_sql)
                 connection.commit()
 
-                print("Stored procedure criada com sucesso.")
+                print("report: Stored procedure criada com sucesso, dados de vendas mensais armazenados")
+                return True
 
             except Exception as e:
                 print(f"Erro ao criar stored procedure: {e}")
+                return False
             finally:
                 db_cursor.close()
                 self.connection_pool.putconn(connection)

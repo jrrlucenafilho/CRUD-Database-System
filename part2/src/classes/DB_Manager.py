@@ -303,7 +303,6 @@ class DB_Manager:
             return False
 
         #Effective purchase
-        #First 
         self.seller.sell_product(cod_cliente, cod_produto, quantidade, forma_pagamento)
         self.stock.purchase_product(cod_produto, quantidade)
         self.client.purchase_product(cod_cliente, cod_produto, quantidade)
