@@ -262,10 +262,16 @@ class Product:
     '''Part 2'''
     #Returns all values from the "Produto" table
     def get_products(self):
+        connection = self.connection_pool.getconn()
+        db_cursor = connection.cursor()
+
         query = """
         SELECT * FROM produtos;
         """
-        self.cursor.execute(query)
-        products = self.cursor.fetchall()
+        db_cursor.execute(query)
+        products = db_cursor.fetchall()
+
+        db_cursor.close()
+        self.connection_pool.putconn(connection)
 
         return products

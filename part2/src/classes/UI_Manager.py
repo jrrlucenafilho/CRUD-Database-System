@@ -1,6 +1,7 @@
 from classes.DB_Manager import DB_Manager
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 class UI_Manager:
     def __init__(self):
@@ -40,7 +41,7 @@ class UI_Manager:
                                         font=("Arial", 15),
                                         width=7, padx=5, pady=5, bd=3,
                                         bg="#0099ff",
-                                        command=lambda: self.test())
+                                        command=lambda: self.transaction_UI())
         self.seller_button_1.grid(row=1, column=1, padx=10, pady=10)
 
         self.client_button_1 = tk.Button(labels_frame,
@@ -56,7 +57,7 @@ class UI_Manager:
                                         font=("Arial", 15),
                                         width=7, padx=5, pady=5, bd=3,
                                         bg="#0099ff",
-                                        command=lambda: self.test())
+                                        command=lambda: self.register_seller_UI())
         self.seller_button_2.grid(row=1, column=0, padx=10, pady=10)
 
         self.client_button_2 = tk.Button(labels_frame,
@@ -64,7 +65,7 @@ class UI_Manager:
                                         font=("Arial", 15),
                                         width=7, padx=5, pady=5, bd=3,
                                         bg="#0099ff",
-                                        command=lambda: self.test())
+                                        command=lambda: self.placeholder())
         self.client_button_2.grid(row=0, column=1, padx=10, pady=10)
 
         #Navigation button widget
@@ -570,3 +571,104 @@ class UI_Manager:
                         padx=10, pady=5, bd=3, bg="#0099ff",
                         command=lambda: add_client_if_valid())
         button.pack()
+
+    def register_seller_UI(self):
+            # Crie uma nova janela
+            seller_register_window = tk.Toplevel(self.root, padx=10, pady=10)
+            seller_register_window.geometry(self.popup_coords_calc(seller_register_window))
+
+            # Frame e Entry para CPF
+            cpf_frame = tk.Frame(seller_register_window)
+            cpf_frame.pack(fill='x')
+            tk.Label(cpf_frame, text="CPF: ").pack(side='left')
+            cpf_entry = tk.Entry(cpf_frame)
+            cpf_entry.pack(side='right', expand=True)
+
+            # Frame e Entry para nome
+            nome_frame = tk.Frame(seller_register_window)
+            nome_frame.pack(fill='x')
+            tk.Label(nome_frame, text="Nome: ").pack(side='left')
+            nome_entry = tk.Entry(nome_frame)
+            nome_entry.pack(side='right', expand=True)
+
+            # Frame e Entry para dataNascimento
+            dataNascimento_frame = tk.Frame(seller_register_window)
+            dataNascimento_frame.pack(fill='x')
+            tk.Label(dataNascimento_frame, text="Data de Nascimento: ").pack(side='left')
+            dataNascimento_entry = tk.Entry(dataNascimento_frame)
+            dataNascimento_entry.pack(side='right', expand=True)
+
+            # Frame e Entry para email
+            email_frame = tk.Frame(seller_register_window)
+            email_frame.pack(fill='x')
+            tk.Label(email_frame, text="Email: ").pack(side='left')
+            email_entry = tk.Entry(email_frame)
+            email_entry.pack(side='right', expand=True)
+
+            # Frame e Entry para senha
+            senha_frame = tk.Frame(seller_register_window)
+            senha_frame.pack(fill='x')
+            tk.Label(senha_frame, text="Senha: ").pack(side='left')
+            senha_entry = tk.Entry(senha_frame, show="*")  # Senha é mascarada com *
+            senha_entry.pack(side='right', expand=True)
+
+
+            # Retorna False se pelo menos um estiver vazio
+            def check_empty_entries_on_seller_login():
+                return all([
+                    cpf_entry.get(),
+                    nome_entry.get(),
+                    dataNascimento_entry.get(),
+                    email_entry.get(),
+                    senha_entry.get()
+                ])
+
+            # Verifica se algum campo está vazio
+            def add_seller_if_valid():
+                if check_empty_entries_on_seller_login():
+                    # Chame a função para adicionar o vendedor
+                    try:
+                        self.db_manager.seller.add_seller(
+                            cpf_entry.get(),
+                            nome_entry.get(),
+                            dataNascimento_entry.get(),
+                            email_entry.get(),
+                            senha_entry.get()
+                        )
+                        messagebox.showinfo("Sucesso", "Vendedor cadastrado com sucesso!")
+                    except Exception as e:
+                        messagebox.showerror("Erro", f"Erro ao cadastrar vendedor: {e}")
+                else:
+                    self.show_warning("Preencha todos os campos")
+
+            button = tk.Button(seller_register_window, text="Cadastrar",
+                            padx=10, pady=5, bd=3, bg="#0099ff",
+                            command=add_seller_if_valid)
+            button.pack()
+
+    #UI for buying from client's view
+    def transaction_UI(self):
+        #Create a new window
+        transaction_window = tk.Toplevel(self.root)
+        transaction_window.title("Transação")
+
+        #Create a Treeview widget
+        tree = ttk.Treeview(transaction_window)
+        tree["columns"] = ("produto", "estoque")
+        tree.column("#0", width=0, stretch=tk.NO)
+        tree.column("produto", anchor=tk.W, width=100)
+        tree.column("estoque", anchor=tk.W, width=100)
+
+        tree.heading("#0", text="", anchor=tk.W)
+        tree.heading("produto", text="produto", anchor=tk.W)
+        tree.heading("estoque", text="estoque", anchor=tk.W)
+
+        #Add items to the Treeview
+        for product in self.db_manager.produto.get_products():
+            tree.insert(parent='', index='end', iid=product, text="", values=(product.name, product.stock))
+
+        tree.pack()
+
+        #Create a Sell button
+        sell_button = tk.Button(transaction_window, text="Sell", padx=10, pady=5, bd=3, bg="#0099ff")
+        sell_button.pack()

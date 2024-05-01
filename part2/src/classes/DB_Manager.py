@@ -282,3 +282,30 @@ class DB_Manager:
         self.seller.add_seller(nome, email, senha, cpf, data_nascimento)
 
         return True
+
+
+    '''Purchase functions'''
+    def purchase_product(self, cod_produto:int, cod_cliente:int, quantidade:int, forma_pagamento:str):
+        #Check if product exists
+        if not self.product_exists_by_code(cod_produto):
+            return False
+
+        #Check if there's enough stock
+        if not self.stock.has_stock(cod_produto, quantidade):
+            return False
+
+        #Check if client exists
+        if not self.client.client_exists(cod_cliente):
+            return False
+
+        #Check if client has enough money
+        if not self.client.has_enough_money(cod_cliente, cod_produto, quantidade):
+            return False
+
+        #Effective purchase
+        #First 
+        self.seller.sell_product(cod_cliente, cod_produto, quantidade, forma_pagamento)
+        self.stock.purchase_product(cod_produto, quantidade)
+        self.client.purchase_product(cod_cliente, cod_produto, quantidade)
+
+        return True

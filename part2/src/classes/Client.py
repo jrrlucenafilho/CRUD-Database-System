@@ -167,3 +167,34 @@ class Client:
         finally:
             db_cursor.close()
             self.connection_pool.putconn(connection)
+
+    def client_exists(self, cod_client: int):
+        try:
+            connection = self.connection_pool.getconn()
+            db_cursor = connection.cursor()
+            query = f"SELECT * FROM {self.table_name} WHERE cod_client = %s"
+            db_cursor.execute(query, (cod_client,))
+            row = db_cursor.fetchone()
+            return row is not None
+        except Exception as e:
+            print(f"Error while checking if client exists: {e}")
+            return False
+        finally:
+            db_cursor.close()
+            self.connection_pool.putconn(connection)
+
+
+    def client_has_enough_money(self, cod_client: int, amount_bought: int, price_per_unit: float):
+        try:
+            connection = self.connection_pool.getconn()
+            db_cursor = connection.cursor()
+            query = f"SELECT saldo FROM {self.table_name} WHERE cod_client = %s"
+            db_cursor.execute(query, (cod_client,))
+            row = db_cursor.fetchone()
+            return row[0] >= amount_bought * price_per_unit
+        except Exception as e:
+            print(f"Error while checking if client has enough money: {e}")
+            return False
+        finally:
+            db_cursor.close()
+            self.connection_pool.putconn(connection)
