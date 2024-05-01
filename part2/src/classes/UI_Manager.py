@@ -41,7 +41,7 @@ class UI_Manager:
                                         width=7, padx=5, pady=5, bd=3,
                                         bg="#0099ff",
                                         command=lambda: self.test())
-        self.seller_button_1.grid(row=0, column=0, padx=10, pady=10)
+        self.seller_button_1.grid(row=1, column=1, padx=10, pady=10)
 
         self.client_button_1 = tk.Button(labels_frame,
                                         text="Cliente",
@@ -49,7 +49,7 @@ class UI_Manager:
                                         width=7, padx=5, pady=5, bd=3,
                                         bg="#0099ff",
                                         command=lambda: self.register_client_UI())
-        self.client_button_1.grid(row=0, column=1, padx=10, pady=10)
+        self.client_button_1.grid(row=0, column=0, padx=10, pady=10)
 
         self.seller_button_2 = tk.Button(labels_frame,
                                         text="Vendedor",
@@ -65,7 +65,7 @@ class UI_Manager:
                                         width=7, padx=5, pady=5, bd=3,
                                         bg="#0099ff",
                                         command=lambda: self.test())
-        self.client_button_2.grid(row=1, column=1, padx=10, pady=10)
+        self.client_button_2.grid(row=0, column=1, padx=10, pady=10)
 
         #Navigation button widget
         self.new_button = tk.Button(main_frame,
@@ -74,7 +74,7 @@ class UI_Manager:
                                     width=7, padx=5, pady=5, bd=3,
                                     bg="#0099ff",
                                     command=lambda: self.navigate_stock_UI())
-        self.new_button.pack(side=tk.TOP, padx=10, pady=10)
+        self.new_button.pack(side=tk.TOP, padx=(10, 20), pady=10)
 
 
     def get_root(self):
@@ -541,16 +541,32 @@ class UI_Manager:
         self.fromSousa_check = tk.Checkbutton(client_register_window, text="Nascido(a) em Sousa", variable=self.fromSousa_var)
         self.fromSousa_check.pack()
 
-        # Create a button
+        #Returns false if even jsut one is empty
+        def check_empty_entries_on_client_login():
+            return all([
+                self.cpf_entry.get(),
+                self.nome_entry.get(),
+                self.dataNascimento_entry.get(),
+                self.email_entry.get(),
+                self.senha_entry.get()
+        ])
+
+        #Checks if any entry is empty
+        def add_client_if_valid():
+            if check_empty_entries_on_client_login():
+                self.db_manager.client.add_client(
+                    self.clean_cpf(self.cpf_entry.get()),
+                    self.nome_entry.get(),
+                    self.dataNascimento_entry.get(),
+                    self.email_entry.get(),
+                    self.senha_entry.get(),
+                    bool(self.isFlamengo_var.get()),
+                    bool(self.onePieceFan_var.get()),
+                    bool(self.fromSousa_var.get()))
+            else:
+                self.show_warning("Preencha todos os campos")
+
         button = tk.Button(client_register_window, text="Cadastrar",
                         padx=10, pady=5, bd=3, bg="#0099ff",
-                        command=lambda: self.db_manager.client.add_client(
-                            self.clean_cpf(self.cpf_entry.get()),
-                            self.nome_entry.get(),
-                            self.dataNascimento_entry.get(),    #HAS to be in 'dd/mm/yyyy' format
-                            self.email_entry.get(),
-                            self.senha_entry.get(),
-                            bool(self.isFlamengo_var.get()),
-                            bool(self.onePieceFan_var.get()),
-                            bool(self.fromSousa_var.get())))    #TODO: add a check for empty values (cant let go to db)
-        button.pack()                                           #And a check for cpf already existing #And a final "success" window
+                        command=lambda: add_client_if_valid())
+        button.pack()
